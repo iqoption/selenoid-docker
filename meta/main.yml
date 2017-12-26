@@ -1,0 +1,9 @@
+galaxy_info:
+  author: Alexandr Andryashin, Denis Arslanbekov
+  description: Deploy selenoid
+  company: Iqoption Ltd.
+  min_ansible_version: 2.2
+  platforms:
+  - name: Ubuntu
+    versions:
+    - 16.04

@@ -1,0 +1,25 @@
+---
+- name: Selenoid | Installing docker-py python package
+  pip: name=docker-py
+
+- name: Selenoid | Run CM container, download browser images and run selenoid
+  docker_container:
+    name: cm
+    image: "aerokube/cm:{{ selenoid_cm_version }}"
+    volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    - "/root:/root"
+    env:
+      OVERRIDE_HOME: "/root"
+      DOCKER_API_VERSION: "{{ selenoid_docker_api_version }}"
+    command: >
+      selenoid start
+        --config-dir /etc/selenoid/
+        --vnc
+        --version {{ selenoid_version }}
+        --tmpfs 128
+        --last-versions 0
+        --env DOCKER_API_VERSION=1.24
+        --force
+        --args "-limit 4 -listen :4444 -conf /etc/selenoid/browsers.json -video-output-dir /opt/selenoid/video/"
+    detach: false
