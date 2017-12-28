@@ -15,7 +15,9 @@ Set up [selenoid](https://github.com/aerokube/selenoid) in docker
 
 ## Dependencies
 
-None
+* [grid-router](https://github.com/iqoption/gridrouter-ansible)
+
+grid-router may help you generate browser.xml (using sctl and ./files/input.json in grid-router repo).
 
 #### Example
 
@@ -34,4 +36,4 @@ None
 5. Submit a pull request.
 
 ## License
-See LICENSE.md
+See LICENSE
