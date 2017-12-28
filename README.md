@@ -13,12 +13,6 @@ Set up [selenoid](https://github.com/aerokube/selenoid) in docker
 * `selenoid_version`: [Default: `1.4.0`] Install selenoid version
 * `selenoid_docker_api_version`: [Default: `1.24`] Docker api version (for Selenoid)
 
-## Dependencies
-
-* [grid-router](https://github.com/iqoption/gridrouter-ansible)
-
-grid-router may help you generate browser.xml (using sctl and ./files/input.json in grid-router repo).
-
 #### Example
 
 ```yaml
@@ -27,6 +21,12 @@ grid-router may help you generate browser.xml (using sctl and ./files/input.json
   roles:
   - selenoid
 ```
+
+## Dependencies
+
+* [grid-router](https://github.com/iqoption/gridrouter-ansible)
+
+grid-router may help you generate browser.xml (using sctl and ./files/input.json in grid-router repo).
 
 ## Contributing
 1. Fork it;
