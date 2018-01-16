@@ -13,11 +13,12 @@
     - "/var/run/docker.sock:/var/run/docker.sock"
     - "/root:/root"
     env:
+      TZ: "{{ selenoid_time_zone }}"
       OVERRIDE_HOME: "/root"
       DOCKER_API_VERSION: "{{ selenoid_docker_api_version }}"
     command: >
       selenoid start
-        --config-dir /etc/selenoid/
+        --config-dir {{ selenoid_config_dir }}
         --version {{ selenoid_version }}
         --tmpfs {{ selenoid_tmpfs }}
         --env DOCKER_API_VERSION={{ selenoid_docker_api_version }}

@@ -4,5 +4,6 @@ selenoid_version: 1.4.0
 selenoid_docker_api_version: 1.24
 selenoid_limit: 4
 selenoid_tmpfs: 128
-selenoid_config_dir: /etc/selenoid/
+selenoid_config_dir: /etc/selenoid
 selenoid_listen_port: 4444
+selenoid_time_zone: Europe/Moscow
