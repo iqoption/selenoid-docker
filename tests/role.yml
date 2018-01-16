@@ -1,0 +1,5 @@
+---
+- hosts: 'localhost'
+  roles:
+    - role: 'selenoid-docker'
+      become: yes
