@@ -1,6 +1,9 @@
 ---
-- name: Selenoid | Installing docker-py python package
-  pip: name=docker-py
+- name: Selenoid | Install certain python modules for docker
+  pip:
+    name: "{{ item.name }}"
+  with_items:
+  - { name: docker-py }
 
 - name: Selenoid | Run CM container, download browser images and run selenoid
   docker_container:
@@ -16,7 +19,7 @@
       selenoid start
         --config-dir /etc/selenoid/
         --version {{ selenoid_version }}
-        --tmpfs 128
+        --tmpfs {{ selenoid_tmpfs }}
         --env DOCKER_API_VERSION={{ selenoid_docker_api_version }}
         --force
-        --args "-limit 4 -listen :4444 -conf /etc/selenoid/browsers.json"
+        --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -conf {{ selenoid_config_dir }}/browsers.json"
