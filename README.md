@@ -1,5 +1,6 @@
 ## Selenoid in docker
 [![Build Status](https://travis-ci.org/iqoption/selenoid-docker.svg?branch=add-travis)](https://travis-ci.org/iqoption/selenoid-docker)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Set up [selenoid](https://github.com/aerokube/selenoid) in docker
 
