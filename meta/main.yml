@@ -1,5 +1,18 @@
 galaxy_info:
-  author: Alexandr Andryashin, Denis Arslanbekov
-  description: Deploy selenoid
+  author: Alexandr Andryashin, Denis Arslanbekov, Vladimir Kozyrev
+  description: |
+    Ansible role to manage and run the selenoid docker container.
   company: Iqoption Ltd.
-  min_ansible_version: 2.2
+  min_ansible_version: 2.1
+  platforms:
+  - name: Ubuntu
+    versions:
+     - trusty
+     - xenial
+  galaxy_tags:
+    - containers
+    - docker
+    - selenoid
+    - gridrouter
+    - ubuntu
+dependencies: []
