@@ -7,3 +7,8 @@ selenoid_tmpfs: 128
 selenoid_config_dir: /etc/selenoid
 selenoid_listen_port: 4444
 selenoid_time_zone: Europe/Moscow
+selenoid_browsers_last_versions: 5
+selenoid_browsers:
+  - firefox
+  - opera
+  - chrome
