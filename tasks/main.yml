@@ -33,5 +33,7 @@
         --version {{ selenoid_version }}
         --tmpfs {{ selenoid_tmpfs }}
         --env DOCKER_API_VERSION={{ selenoid_docker_api_version }}
+        --browsers firefox,opera,chrome
+        --last-versions 5
         --force
         --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -conf {{ selenoid_config_dir }}/browsers.json"
