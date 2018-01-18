@@ -5,6 +5,17 @@
   with_items:
   - { name: docker-py }
 
+- name: Selenoid | Check selenoid container exist
+  shell: 'docker ps -aq --filter "name={{ item }}"'
+  with_items:
+    - 'selenoid'
+  register: found_containers
+
+- name: Selenoid | Remove selenoid container if exist
+  shell: 'docker stop {{ item.item }} && docker rm -fv {{ item.item }}'
+  with_items: '{{ found_containers.results }}'
+  when: item.stdout
+
 - name: Selenoid | Run CM container, download browser images and run selenoid
   docker_container:
     name: cm
@@ -22,5 +33,7 @@
         --version {{ selenoid_version }}
         --tmpfs {{ selenoid_tmpfs }}
         --env DOCKER_API_VERSION={{ selenoid_docker_api_version }}
+        --browsers {% for browser in selenoid_browsers -%}{{ browser }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}
+        --last-versions {{ selenoid_browsers_last_versions }}
         --force
         --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -conf {{ selenoid_config_dir }}/browsers.json"
