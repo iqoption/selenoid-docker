@@ -16,6 +16,12 @@
   with_items: '{{ found_containers.results }}'
   when: item.stdout
 
+- name: Selenoid | Create video folder
+  file:
+    path: "{{ selenoid_video_host_output_dir }}"
+    state: directory
+    mode: 0755
+
 - name: Selenoid | Run CM container, download browser images and run selenoid
   docker_container:
     name: cm
@@ -23,17 +29,17 @@
     volumes:
     - "/var/run/docker.sock:/var/run/docker.sock"
     - "/root:/root"
+    - "{{ selenoid_video_host_output_dir }}:{{ selenoid_video_container_output_dir }}"
     env:
       TZ: "{{ selenoid_time_zone }}"
       OVERRIDE_HOME: "/root"
-      DOCKER_API_VERSION: "{{ selenoid_docker_api_version }}"
     command: >
       selenoid start
         --config-dir {{ selenoid_config_dir }}
         --version {{ selenoid_version }}
         --tmpfs {{ selenoid_tmpfs }}
-        --env DOCKER_API_VERSION={{ selenoid_docker_api_version }}
         --browsers {% for browser in selenoid_browsers -%}{{ browser }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}
         --last-versions {{ selenoid_browsers_last_versions }}
         --force
-        --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -conf {{ selenoid_config_dir }}/browsers.json"
+        --vnc
+        --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -video-output-dir={{ selenoid_video_container_output_dir }} -conf {{ selenoid_config_dir }}/browsers.json"
