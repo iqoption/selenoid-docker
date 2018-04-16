@@ -3,7 +3,7 @@
   pip:
     name: "{{ item.name }}"
   with_items:
-  - { name: docker-py }
+  - { name: docker }
 
 - name: Selenoid | Check selenoid container exist
   shell: 'docker ps -aq --filter "name={{ item }}"'
