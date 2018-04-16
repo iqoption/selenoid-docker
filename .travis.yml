@@ -1,6 +1,6 @@
 ---
 language: python
-python: "2.7"
+python: "3.6"
 sudo: required
 dist: trusty
 services:
@@ -8,6 +8,7 @@ services:
 
 before_install:
  - sudo apt-get update -qq
+ - sudo apt-get install -y libffi-dev libssl-dev
 
 install:
   - sudo pip install docker-py
