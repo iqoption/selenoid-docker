@@ -12,10 +12,9 @@ Set up [selenoid](https://github.com/aerokube/selenoid) in docker
 #### Variables
 
 ```yaml
-selenoid_version: 1.4.0
-selenoid_cm_version: 1.3.1
-selenoid_docker_api_version: 1.24
-selenoid_limit: 4
+selenoid_version: 1.6.0
+selenoid_cm_version: 1.4.2
+selenoid_limit: 5
 selenoid_tmpfs: 128
 selenoid_config_dir: /etc/selenoid
 selenoid_listen_port: 4444
@@ -25,6 +24,8 @@ selenoid_browsers:
   - firefox
   - opera
   - chrome
+selenoid_video_host_output_dir: /var/lib/selenoid/video
+selenoid_video_container_output_dir: /opt/selenoid/video
 ```
 
 #### Example
