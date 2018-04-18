@@ -3,7 +3,7 @@ selenoid_version: 1.6.0 # Install selenoid version
 selenoid_cm_version: 1.4.2 # Install configuration manager version
 selenoid_limit: 5 # Total number of simultaneously running containers http://aerokube.com/selenoid/latest/#_recommended_docker_settings
 selenoid_tmpfs: 128 # Add in-memory filesystem (tmpfs) to container http://aerokube.com/selenoid/latest/#_other_optional_fields
-selenoid_config_dir: /etc/selenoid # Selenoid configuration dir
+selenoid_config_dir: /root/.aerokube/selenoid # Selenoid configuration dir
 selenoid_listen_port: 4444 # Listen port
 selenoid_time_zone: Europe/Moscow # Timezone in container
 selenoid_browsers_last_versions: 5 # How many last version browsers need download in selenoid
