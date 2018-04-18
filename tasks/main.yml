@@ -42,4 +42,4 @@
         --last-versions {{ selenoid_browsers_last_versions }}
         --force
         --vnc
-        --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -video-output-dir={{ selenoid_video_container_output_dir }} -conf {{ selenoid_config_dir }}/browsers.json"
+        --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -video-output-dir={{ selenoid_video_container_output_dir }} -conf /etc/selenoid/browsers.json"
