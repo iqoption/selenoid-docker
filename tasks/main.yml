@@ -92,7 +92,7 @@
       selenoid start
         --version {{ selenoid_version }}
         --tmpfs {{ selenoid_tmpfs }}
-        --browsers {% for browser in selenoid_browsers -%}{{ browser }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}
+        --browsers {% for browser in selenoid_browsers -%}'{{ browser }}'{%- if not loop.last -%};{%- endif -%}{%- endfor %}
         --last-versions {{ selenoid_browsers_last_versions }}
         --force
         --vnc
