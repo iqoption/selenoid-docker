@@ -5,7 +5,7 @@
 #   with_items:
 #   - { name: docker }
 
-- name: Selenoid | Install certain python modules for docker
+- name: "Selenoid | Install certain python modules for docker (RedHat)"
   become: True
   package:
     name: "{{ item.name }}"
@@ -15,7 +15,7 @@
     - (ansible_distribution == "OracleLinux" or ansible_distribution == "CentOS")
     - ansible_os_family == "RedHat"
 
-- name: Selenoid | Install certain python modules for docker
+- name: "Selenoid | Install certain python modules for docker (Debian)"
   become: True
   package:
     name: "{{ item.name }}"
@@ -26,24 +26,48 @@
 
 
 - name: Selenoid | Check selenoid container exist
-  shell: "docker ps -aq --filter \"name=^{{ item }}$\""
+  become: True
+  become_user: "{{selenoid_owner_user}}"
+  # Normally must be name=^{{ item }}$ but we have  seen problem on some hosts with cap (^)
+  shell: "docker ps -aq --filter \"name={{ item }}$\""
   with_items:
     - 'selenoid'
     - 'selenoid-ui'
   register: found_containers
+  tags:
+    - stop_selenoid
 
 - name: Selenoid | Remove selenoid container if exist
+  become: True
+  become_user: "{{selenoid_owner_user}}"
   shell: 'docker stop {{ item.item }} && docker rm -fv {{ item.item }}'
   with_items: '{{ found_containers.results }}'
   when: item.stdout
+  tags:
+    - stop_selenoid
 
-- name: Selenoid | Create video folder
+# - name: Selenoid | Create video folder
+#   become: True
+#   become_user: "{{selenoid_owner_user}}"
+#   file:
+#     path: "{{ selenoid_video_host_output_dir }}"
+#     state: directory
+#     mode: 0755
+
+- name: Selenoid | Link video folder (due BUG in cm for OVERRIDE_VIDEO_OUTPUT_DIR )
+  become: True
+  become_user: "{{selenoid_owner_user}}"
   file:
     path: "{{ selenoid_video_host_output_dir }}"
-    state: directory
+    state: link
+    src: "{{ selenoid_config_dir }}/.aerokube/selenoid/video"
+    force: yes
     mode: 0755
 
+
 - name: Selenoid | Run CM container, download browser images and run selenoid
+  become: True
+  become_user: "{{selenoid_owner_user}}"
   docker_container:
     name: cm
     image: "aerokube/cm:{{ selenoid_cm_version }}"
@@ -55,20 +79,25 @@
     volumes:
     - "/var/run/docker.sock:/var/run/docker.sock"
     - "{{ selenoid_config_dir }}:/root"
-    - "{{ selenoid_video_host_output_dir }}:{{ selenoid_video_container_output_dir }}"
+    # - "{{ selenoid_video_host_output_dir }}:{{ selenoid_video_container_output_dir }}"
+    # due cm save config to /root
     env:
       TZ: "{{ selenoid_time_zone }}"
       OVERRIDE_HOME: "{{ selenoid_config_dir }}"
+      OVERRIDE_VIDEO_OUTPUT_DIR: "{{ selenoid_video_host_output_dir }}"
+    # in child container we will have mounts: "{{ selenoid_config_dir }}.aerokube/selenoid:/etc/selenoid:ro,Z"
+    # I see that "cm" does not  mount selenoid_video_host_output_dir in according to OVERRIDE_VIDEO_OUTPUT_DIR (ignore it)
+    # so video will be in {{ selenoid_config_dir }}/.aerokube/selenoid/video:
     command: >
       selenoid start
-        --config-dir {{ selenoid_config_dir }}
         --version {{ selenoid_version }}
         --tmpfs {{ selenoid_tmpfs }}
         --browsers {% for browser in selenoid_browsers -%}{{ browser }}{%- if not loop.last -%},{%- endif -%}{%- endfor %}
         --last-versions {{ selenoid_browsers_last_versions }}
         --force
         --vnc
-        --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -video-output-dir={{ selenoid_video_container_output_dir }} -conf /etc/selenoid/browsers.json"
+        --env OVERRIDE_VIDEO_OUTPUT_DIR={{ selenoid_video_host_output_dir }}
+        --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }}"
   register: reg_cm_solenoid
 
 - name: Print some debug information
@@ -81,6 +110,8 @@
 
 
 - name: Selenoid | Run CM selenoid-ui
+  become: True
+  become_user: "{{selenoid_owner_user}}"
   docker_container:
     name: cm
     # auto_remove: yes
@@ -97,6 +128,7 @@
 #       --args "--selenoid-uri http://selenoid:{{ selenoid_listen_port }} --webdriver-uri http://{{selenoid_host_external}}:{{ selenoid_listen_port }}"
     command: >
       selenoid-ui start
+      --port {{ selenoid_ui_listen_port }}
   register: reg_cm_solenoidui
 
 - name: Print some debug information

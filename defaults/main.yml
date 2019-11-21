@@ -5,6 +5,7 @@ selenoid_limit: 5 # Total number of simultaneously running containers http://aer
 selenoid_tmpfs: 128 # Add in-memory filesystem (tmpfs) to container http://aerokube.com/selenoid/latest/#_other_optional_fields
 selenoid_config_dir: "{{ ansible_env.HOME }}/selenoid" # Selenoid configuration dir
 selenoid_listen_port: 4444 # Listen port
+selenoid_ui_listen_port: 8080 # Listen port
 selenoid_time_zone: Europe/Moscow # Timezone in container
 selenoid_browsers_last_versions: 5 # How many last version browsers need download in selenoid
 selenoid_browsers: # What browsers to download
@@ -13,3 +14,4 @@ selenoid_browsers: # What browsers to download
   - chrome
 selenoid_video_host_output_dir: /var/lib/selenoid/video # Dir for save video in host path
 selenoid_video_container_output_dir: /opt/selenoid/video # Dir for save video in container (default: /opt/selenoid/video)
+selenoid_owner_user: "{{ ansible_env.USER }}"
