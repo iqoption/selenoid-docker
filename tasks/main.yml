@@ -1,14 +1,35 @@
 ---
+# - name: Selenoid | Install certain python modules for docker
+#   pip:
+#     name: "{{ item.name }}"
+#   with_items:
+#   - { name: docker }
+
 - name: Selenoid | Install certain python modules for docker
-  pip:
+  become: True
+  package:
     name: "{{ item.name }}"
   with_items:
-  - { name: docker }
+    - { name: python-docker-py }
+  when:
+    - (ansible_distribution == "OracleLinux" or ansible_distribution == "CentOS")
+    - ansible_os_family == "RedHat"
+
+- name: Selenoid | Install certain python modules for docker
+  become: True
+  package:
+    name: "{{ item.name }}"
+  with_items:
+    - { name: python-docker }
+  when:
+    - ansible_os_family == "Debian"
+
 
 - name: Selenoid | Check selenoid container exist
-  shell: 'docker ps -aq --filter "name={{ item }}"'
+  shell: "docker ps -aq --filter \"name=^{{ item }}$\""
   with_items:
     - 'selenoid'
+    - 'selenoid-ui'
   register: found_containers
 
 - name: Selenoid | Remove selenoid container if exist
@@ -26,13 +47,18 @@
   docker_container:
     name: cm
     image: "aerokube/cm:{{ selenoid_cm_version }}"
+    # auto_remove: yes
+    # Need to remove CM container before next invocation.....
+    # But this command run for long time to download containers
+    cleanup: yes
+    detach: no
     volumes:
     - "/var/run/docker.sock:/var/run/docker.sock"
-    - "/root:/root"
+    - "{{ selenoid_config_dir }}:/root"
     - "{{ selenoid_video_host_output_dir }}:{{ selenoid_video_container_output_dir }}"
     env:
       TZ: "{{ selenoid_time_zone }}"
-      OVERRIDE_HOME: "/root"
+      OVERRIDE_HOME: "{{ selenoid_config_dir }}"
     command: >
       selenoid start
         --config-dir {{ selenoid_config_dir }}
@@ -43,3 +69,43 @@
         --force
         --vnc
         --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }} -video-output-dir={{ selenoid_video_container_output_dir }} -conf /etc/selenoid/browsers.json"
+  register: reg_cm_solenoid
+
+- name: Print some debug information
+  vars:
+    msg: |
+        reg_cm_solenoid: {{ reg_cm_solenoid }}
+  debug:
+    msg: "{{ msg.split('\n') }}"
+  tags: debug_info
+
+
+- name: Selenoid | Run CM selenoid-ui
+  docker_container:
+    name: cm
+    # auto_remove: yes
+    cleanup: yes
+    detach: no
+    image: "aerokube/cm:{{ selenoid_cm_version }}"
+    volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    - "{{ selenoid_config_dir }}:/root"
+    env:
+      TZ: "{{ selenoid_time_zone }}"
+      OVERRIDE_HOME: "{{ selenoid_config_dir }}"
+      # DOCKER_API_VERSION: "{{ selenoid_docker_api_version | string }}"
+#       --args "--selenoid-uri http://selenoid:{{ selenoid_listen_port }} --webdriver-uri http://{{selenoid_host_external}}:{{ selenoid_listen_port }}"
+    command: >
+      selenoid-ui start
+  register: reg_cm_solenoidui
+
+- name: Print some debug information
+  vars:
+    msg: |
+        Ansible Distribution: {{ ansible_distribution }}
+        Ansible Dist version: {{ ansible_distribution_version }}
+        Ansible OS family {{ansible_os_family}}
+        reg_cm_solenoidui: {{ reg_cm_solenoidui }}
+  debug:
+    msg: "{{ msg.split('\n') }}"
+  tags: debug_info
