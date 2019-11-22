@@ -1,10 +1,4 @@
 ---
-# - name: Selenoid | Install certain python modules for docker
-#   pip:
-#     name: "{{ item.name }}"
-#   with_items:
-#   - { name: docker }
-
 - name: "Selenoid | Install certain python modules for docker (RedHat)"
   become: True
   package:
@@ -12,7 +6,6 @@
   with_items:
     - { name: python-docker-py }
   when:
-    - (ansible_distribution == "OracleLinux" or ansible_distribution == "CentOS")
     - ansible_os_family == "RedHat"
 
 - name: "Selenoid | Install certain python modules for docker (Debian)"
@@ -46,14 +39,8 @@
   tags:
     - stop_selenoid
 
-# - name: Selenoid | Create video folder
-#   become: True
-#   become_user: "{{selenoid_owner_user}}"
-#   file:
-#     path: "{{ selenoid_video_host_output_dir }}"
-#     state: directory
-#     mode: 0755
-
+    # I see that "cm" does not  mount selenoid_video_host_output_dir in according to OVERRIDE_VIDEO_OUTPUT_DIR (ignore it)
+    # so video will be in {{ selenoid_config_dir }}/.aerokube/selenoid/video:
 - name: Selenoid | Link video folder (due BUG in cm for OVERRIDE_VIDEO_OUTPUT_DIR )
   become: True
   become_user: "{{selenoid_owner_user}}"
@@ -78,23 +65,19 @@
     detach: no
     volumes:
     - "/var/run/docker.sock:/var/run/docker.sock"
+    # due cm save config to /root inside container
     - "{{ selenoid_config_dir }}:/root"
-    # - "{{ selenoid_video_host_output_dir }}:{{ selenoid_video_container_output_dir }}"
-    # due cm save config to /root
     env:
       TZ: "{{ selenoid_time_zone }}"
       OVERRIDE_HOME: "{{ selenoid_config_dir }}"
       OVERRIDE_VIDEO_OUTPUT_DIR: "{{ selenoid_video_host_output_dir }}"
     # in child container we will have mounts: "{{ selenoid_config_dir }}.aerokube/selenoid:/etc/selenoid:ro,Z"
-    # I see that "cm" does not  mount selenoid_video_host_output_dir in according to OVERRIDE_VIDEO_OUTPUT_DIR (ignore it)
-    # so video will be in {{ selenoid_config_dir }}/.aerokube/selenoid/video:
     command: >
       selenoid start
         --version {{ selenoid_version }}
         --tmpfs {{ selenoid_tmpfs }}
         --browsers {% for browser in selenoid_browsers -%}'{{ browser }}'{%- if not loop.last -%};{%- endif -%}{%- endfor %}
         --last-versions {{ selenoid_browsers_last_versions }}
-        --force
         --vnc
         --env OVERRIDE_VIDEO_OUTPUT_DIR={{ selenoid_video_host_output_dir }}
         --args "-limit {{ selenoid_limit }} -listen :{{ selenoid_listen_port }}"
